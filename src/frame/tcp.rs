@@ -4,7 +4,7 @@
 use super::*;
 
 pub(crate) type TransactionId = u16;
-pub(crate) type UnitId = u8;
+pub type UnitId = u8;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Header {

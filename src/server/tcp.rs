@@ -21,6 +21,7 @@ use crate::{
         ExceptionResponse, OptionalResponsePdu,
     },
     server::service::Service,
+    Slave,
 };
 
 use super::Terminated;
@@ -148,7 +149,7 @@ where
         let fc = request.pdu.0.function_code();
         let hdr = request.hdr;
         let OptionalResponsePdu(Some(response_pdu)) = service
-            .call(request.into())
+            .call(Slave(hdr.unit_id), request.into())
             .await
             .map_err(|e| ExceptionResponse {
                 function: fc,
@@ -219,7 +220,7 @@ mod tests {
             type Request = Request<'static>;
             type Future = future::Ready<Result<Response, Exception>>;
 
-            fn call(&self, _: Self::Request) -> Self::Future {
+            fn call(&self, _: Slave, _: Self::Request) -> Self::Future {
                 future::ready(Ok(self.response.clone()))
             }
         }
@@ -252,7 +253,7 @@ mod tests {
             type Request = Request<'static>;
             type Future = future::Ready<Result<Response, Exception>>;
 
-            fn call(&self, _: Self::Request) -> Self::Future {
+            fn call(&self, _: Slave, _: Self::Request) -> Self::Future {
                 future::ready(Ok(self.response.clone()))
             }
         }
@@ -262,7 +263,7 @@ mod tests {
         };
 
         let pdu = Request::ReadInputRegisters(0, 1);
-        let rsp_adu = service.call(pdu).await.unwrap();
+        let rsp_adu = service.call(Slave(0x00), pdu).await.unwrap();
 
         assert_eq!(rsp_adu, service.response);
     }

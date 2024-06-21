@@ -16,6 +16,7 @@ use crate::{
         ExceptionResponse, OptionalResponsePdu,
     },
     server::service::Service,
+    Slave,
 };
 
 use super::Terminated;
@@ -90,7 +91,7 @@ where
         let fc = request.pdu.0.function_code();
         let hdr = request.hdr;
         let OptionalResponsePdu(Some(response_pdu)) = service
-            .call(request.into())
+            .call(Slave(hdr.slave_id), request.into())
             .await
             .map_err(|e| ExceptionResponse {
                 function: fc,
